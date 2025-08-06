@@ -10,33 +10,33 @@ import Mathlib.Algebra.Group.Basic
 
 theorem rearrange_equation  (x: ℚ) (c: ℕ) : 0 ≤ x ∧ x = c → ∃ (a: ℕ )(b: ℕ), a=c * b := by
     intro ht
-    obtain ⟨hc, h⟩ := ht
-  -- Extract numerator and denominator:
-  -- AI gave below
-      -- Numerator and denominator of x
-    let nz := x.num
-    let n := nz.toNat
-    let d := x.den
-    have dnz : d ≠ 0 := x.den_nz
+    obtain ⟨zltx, h⟩ := ht
 
-    have nnz: n = nz := by
-      have nzg : 0 ≤ nz := x.num_nonneg.mpr hc
-      exact @Int.toNat_of_nonneg x.num nzg
-    have nnnz: (n: ℚ) = nz := by
+    let nq := (x.num.toNat : ℚ ) -- we have to work in Q to be able to use
+    let dq := (x.den : ℚ)        -- theorems on multiplying up.
+
+    -- the critical thing we need to prove is that nq = x.num
+    have nnnz: nq = x.num := by
+      dsimp [nq]
+      have nnz: x.num.toNat = x.num := by
+        simp [Int.toNat_of_nonneg, x.num_nonneg]
+        assumption
       norm_cast
 
-    -- Replace x with n / d (this is just the definition of Rat)
-    have h' : (n : ℚ ) / d = c := by
-      rw [<- Rat.num_div_den x] at h
-      rw [nnnz]
-      exact h
+    have dqnz : dq ≠ 0 := Nat.cast_ne_zero.mpr x.den_nz
 
-    -- Now we can rearrange the equation
-    have h_mul : n  =  c * (d : ℚ) :=
-      Eq.symm ((div_eq_iff_mul_eq (Nat.cast_ne_zero.mpr dnz)).mp h')
+    -- Now we're in Q and can rearrange the equation
+    -- using num_div_den for the definition of rational numbers.
+    have h_mul : nq =  c * dq := by
+      rw [<- Rat.num_div_den x, <- nnnz] at h
+      field_simp [dqnz] at h
+      assumption
+
+    dsimp [nq,dq] at h_mul
     norm_cast at h_mul
-    use n, d
-    --norm_cast at h_mul
+
+    use x.num.toNat, x.den
+
 
 theorem root_2_irrational : ¬∃ (p q : ℤ), q ≠ 0 ∧ (p / q) ^ 2 = 2 := by
   intro h
