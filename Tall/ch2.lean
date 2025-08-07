@@ -7,8 +7,8 @@ import Mathlib.Tactic
 import Mathlib.Data.Rat.Lemmas
 import Mathlib.Algebra.Group.Basic
 
-
-theorem rearrange_equation  (x: ℚ) (c: ℕ) : 0 ≤ x ∧ x = c → ∃ (a: ℕ )(b: ℕ), a=c * b := by
+-- this is the wrong theorem. The simp solver deduces x = (c / 1) which isn't what we want.
+theorem rearrange_equation  (x: ℚ) (c: ℕ) : x = c → ∃ (a: ℕ )(b: ℕ), a=c * b := by
     intro ht
 
     use x.num.toNat, x.den
