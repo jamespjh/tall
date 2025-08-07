@@ -8,6 +8,7 @@ import Mathlib.Data.Rat.Lemmas
 import Mathlib.Algebra.Group.Basic
 
 -- note that the naive interpretation of integer division is closest to "lifting to rationals"
+-- if we had truncating integer division, it wouldn't be true.
 theorem rearrange_equation (a b c: ℕ) : b ≠ 0 ∧ (a: ℚ) / b = c → a=c * b := by
     intro ht
     rcases ht with ⟨ hb, ha ⟩
@@ -17,9 +18,11 @@ theorem rearrange_equation (a b c: ℕ) : b ≠ 0 ∧ (a: ℚ) / b = c → a=c *
 #print rearrange_equation
 
 
-theorem root_2_irrational : ¬∃ (p q : ℤ), q ≠ 0 ∧ (p / q) ^ 2 = 2 := by
+theorem root_2_irrational : ¬∃ (p q : ℕ), q ≠ 0 ∧ ((p : ℚ) / q) ^ 2 = 2 := by
   intro h
 
   -- Assume x = p/q in lowest terms
-  rcases h with ⟨ n, d, nz, co ⟩
-  have h1 : n = 2 * d := by
+  rcases h with ⟨ p, q, nz, h ⟩
+  have h1 : p^2 = 2 * q^2 := by
+    field_simp [nz] at h
+    norm_cast at h
