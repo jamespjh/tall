@@ -7,12 +7,12 @@ import Mathlib.Tactic
 import Mathlib.Data.Rat.Lemmas
 import Mathlib.Algebra.Group.Basic
 
--- this is the wrong theorem. The simp solver deduces x = (c / 1) which isn't what we want.
-theorem rearrange_equation  (x: ℚ) (c: ℕ) : x = c → ∃ (a: ℕ )(b: ℕ), a=c * b := by
+-- note that the naive interpretation of integer division is closest to "lifting to rationals"
+theorem rearrange_equation (a b c: ℕ) : b ≠ 0 ∧ (a: ℚ) / b = c → a=c * b := by
     intro ht
-
-    use x.num.toNat, x.den
-    simp [*] at *
+    rcases ht with ⟨ hb, ha ⟩
+    field_simp [hb] at ha
+    norm_cast at ha
 
 #print rearrange_equation
 
