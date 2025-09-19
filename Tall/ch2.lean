@@ -28,8 +28,11 @@ lemma even_square (n : ℕ) : Even (n^2) → Even n := by
   rcases a with a | a
   exact a; exact a
 
-lemma half_twice (n : ℕ) (hn : Even n) :  n =  (n/2) * 2:= by
-  rw [Nat.mul_comm, Nat.mul_div_cancel' (Even.two_dvd hn)]
+lemma exists_half (n : ℕ) (hn : Even n) : ∃ k : ℕ, n = k * 2 := by
+  rcases hn with ⟨ k, hk ⟩
+  use k
+  rw [mul_comm,two_mul]
+  assumption
 
 theorem tower_of_rationals (p q : ℕ):
     are_rational_root_two p q → ∃ (x y : ℕ),
@@ -40,10 +43,9 @@ theorem tower_of_rationals (p q : ℕ):
   rcases h with ⟨ qnz, h ⟩
   have ep2 : Even (p^2) := by
     use q^2
-    rw [h]
-    ring
-  let x := p / 2
-  have px2: p = x * 2 := half_twice p (even_square p ep2)
+    rw [<-two_mul, mul_comm]
+    assumption
+  rcases exists_half p (even_square p ep2) with ⟨ x, px2 ⟩
   have q2e : q ^ 2 = x ^ 2 * 2 := by
     rw [px2] at h
     ring_nf at h
@@ -52,14 +54,11 @@ theorem tower_of_rationals (p q : ℕ):
   have eq2 : Even (q^2) := by
     use x ^ 2
     rw [q2e]
-    ring
-  let y := q / 2
-  have qy2: q = y * 2 := half_twice q (even_square q eq2)
+    rw [mul_comm, two_mul]
+  rcases exists_half q (even_square q eq2) with ⟨ y, qy2 ⟩
   use x, y
   unfold are_rational_root_two
-  refine ⟨?a, ?b, ?y_positive ,?x_y_root⟩
-  . exact px2.symm
-  . exact qy2.symm
+  refine ⟨ px2.symm, qy2.symm, ?y_positive ,?x_y_root⟩
   . rw [qy2] at qnz
     exact Nat.pos_of_mul_pos_right qnz
   . ring_nf
